@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 
 app.use(cors({
-    origin: 'https://alpha-pearl.vercel.app', credentials: true, 
+    origin: true, credentials: true, 
 }));
 
     
@@ -60,11 +60,7 @@ app.post('/login', async (req, res) => {
             } 
             const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
          
-         res.cookie('jwt', token, 
-            { httpOnly: false,
-                 secure: false,
-                  sameSite: 'none', 
-            });
+         res.cookie('jwt', token);
 
 
          res.json({ message: 'Login successful' });
