@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
 const express = require('express');
+const cors = require('cors');
 const User = require('./User');
 const app = express()
 
@@ -19,6 +20,12 @@ db.once('open', function () { console.log('Connected to MongoDB'); });
 app.use(express.json());
 app.use(cookieParser());
 
+
+app.use(cors({
+    origin: 'http://localhost:3000', credentials: true, 
+}));
+
+    
 
 app.post('/register', async (req, res) => { 
     try {
@@ -61,7 +68,7 @@ app.post('/login', async (req, res) => {
  } }); 
 
 
-const port = 3000
+const port = 3001
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
