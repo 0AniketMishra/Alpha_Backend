@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 
 app.use(cors({
-    origin: 'https://alpha-pearl.vercel.app/', credentials: true, 
+    origin: 'https://alpha-pearl.vercel.app', credentials: true, 
 }));
 
     
