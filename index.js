@@ -60,10 +60,10 @@ app.post('/login', async (req, res) => {
             } 
             const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
          
-         res.cookie('jwt', token);
+         res.send(`${token}`);
 
 
-         res.json({ message: 'Login successful' });
+
          
             } catch (error) {
              res.status(500).send(error.message);
