@@ -57,11 +57,15 @@ app.post('/login', async (req, res) => {
         if(user==null)
             return res.status(401).send('Invalid credentials');
         else{
-            const isMatch = user.comparePassword(password);
-            if (!isMatch)
+            const isMatch = await user.comparePassword(password);
+            
+            if (isMatch == false)
                 return res.status(401).send('Invalid credentials');
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            res.json({ token });
+            else{
+                const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                res.json({ token });
+            }
+          
         }
         } catch (error) {
              console.log(error.message);
