@@ -27,6 +27,9 @@ app.use(cookieParser());
 //       allowedHeaders: ['DNT', 'User-Agent', 'X-Requested-With', 'If-Modified-Since', 'Cache-Control', 'Content-Type'], credentials: true }));
 
     
+app.use(cors({
+    origin: true, credentials: true, 
+}));
 
 app.post('/register', async (req, res) => { 
     try {
