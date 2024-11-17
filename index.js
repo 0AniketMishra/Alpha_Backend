@@ -21,10 +21,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-app.use(cors({
-    origin: '*',
-     methods: 'GET, POST, OPTIONS',
-      allowedHeaders: ['DNT', 'User-Agent', 'X-Requested-With', 'If-Modified-Since', 'Cache-Control', 'Content-Type'], credentials: true }));
+// app.use(cors({
+//     origin: '*',
+//      methods: 'GET, POST, OPTIONS',
+//       allowedHeaders: ['DNT', 'User-Agent', 'X-Requested-With', 'If-Modified-Since', 'Cache-Control', 'Content-Type'], credentials: true }));
 
     
 
