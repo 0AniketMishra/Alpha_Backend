@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const cors = require('cors');
 const User = require('./User');
+const Seller = require('./Seller');
+const Listing = require('./Listing');
 const app = express()
 
 
@@ -26,55 +28,116 @@ app.use(cookieParser());
 //      methods: 'GET, POST, OPTIONS',
 //       allowedHeaders: ['DNT', 'User-Agent', 'X-Requested-With', 'If-Modified-Since', 'Cache-Control', 'Content-Type'], credentials: true }));
 
-    
+
 app.use(cors({
-    origin: true, credentials: true, 
+    origin: true, credentials: true,
 }));
 
-app.post('/register', async (req, res) => { 
+app.post('/register', async (req, res) => {
     try {
-         const { username, password } = req.body;
-          
-           const user = new User({ username, password: password });
-            await user.save(); res.status(201).send('User registered successfully');
-      } catch (error) { 
+        const { username, password } = req.body;
+
+        const user = new User({ username, password: password });
+        await user.save(); res.status(201).send('User registered successfully');
+    } catch (error) {
         res.status(500).send(error.message);
- } })
+    }
+})
 
 app.get('/protected', async (req, res) => {
-  try {
-         const token = req.headers.authorization.split(' ')[1];
-          const decoded = jwt.verify(token, process.env.JWT_SECRET);
-           const user = await User.findById(decoded.id);
-            res.send(`Hello, ${user.username}`);
-         }
-          catch (error) { 
-            console.log(error)
-            res.status(401).send('Unauthorized');
-           }
- });
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        res.send(`Hello, ${user.username}`);
+    }
+    catch (error) {
+        console.log(error)
+        res.status(401).send('Unauthorized');
+    }
+});
 
 app.post('/login', async (req, res) => {
-     try {
+    try {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
-        if(user==null)
+        if (user == null)
             return res.status(401).send('Invalid credentials');
-        else{
+        else {
             const isMatch = await user.comparePassword(password);
-            
+
             if (isMatch == false)
                 return res.status(401).send('Invalid credentials');
-            else{
+            else {
                 const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
                 res.json({ token });
             }
-          
-        }
-        } catch (error) {
-             console.log(error.message);
- } }); 
 
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+});
+
+// Registration Route
+app.post('/registerseller', async (req, res) => {
+    console.log("I ran")
+    const { sellerName, sellerNumber, shippingRange, shippingOptions, registrationFee, password } = req.body;
+    const newSeller = new Seller({ sellerName, sellerNumber, shippingRange, shippingOptions, registrationFee, password });
+    try {
+        await newSeller.save(); res.status(201).send('Seller registered successfully');
+    }
+    catch (error) {
+        console.log(error)
+
+    }
+})
+
+
+app.post('/sellerlogin', async (req, res) => {
+    try {
+        const { sellerName, password } = req.body;
+        const seller = await Seller.findOne({ sellerName });
+        console.log(seller)
+        if (seller == null)
+            return res.status(401).send('Invalid credentials');
+        else {
+
+
+            const isMatch = await bcrypt.compare(password, seller.password);
+
+            if (isMatch == false)
+                return res.status(401).send('Invalid credentials');
+            else {
+                const token = jwt.sign({ id: seller._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                res.json({ token });
+            }
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+});
+
+// Create Listing Route
+app.post('/createlisting', async (req, res) => {
+    const { image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId } = req.body;
+    const newListing = new Listing({ image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId });
+    try {
+        await newListing.save(); res.status(201).send('Listing created successfully');
+    } catch (error) {
+        res.status(400).send('Error creating the listing');
+
+    }
+})
+
+app.get('/listings', async (req, res) => {
+    try {
+        const listings = await Listing.find();
+        res.status(200).json(listings);
+    } catch (error) {
+        res.status(500).send('Error fetching listings');
+    }
+})
 
 const port = 3001
 
