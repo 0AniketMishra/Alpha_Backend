@@ -120,13 +120,12 @@ app.post('/sellerlogin', async (req, res) => {
 
 // Create Listing Route
 app.post('/createlisting', async (req, res) => {
-    const { image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId } = req.body;
-    const newListing = new Listing({ image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId });
+    const { image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId,variants,highlightFeatures } = req.body;
+    const newListing = new Listing({ image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId,variants,highlightFeatures });
     try {
         await newListing.save(); res.status(201).send('Listing created successfully');
     } catch (error) {
-        res.status(400).send('Error creating the listing');
-
+        res.status(400).send(error);
     }
 })
 
@@ -138,6 +137,18 @@ app.get('/listings', async (req, res) => {
         res.status(500).send('Error fetching listings');
     }
 })
+
+app.get('/listing/:id', async (req, res) => {
+     try {
+         const listing = await Listing.findById(req.params.id);
+          if (!listing) {
+             return res.status(404).send('Listing not found');
+             }
+              res.status(200).json(listing);
+             } catch (error) {
+                 res.status(500).send('Error fetching listing');
+             }
+     });
 
 const port = 3001
 

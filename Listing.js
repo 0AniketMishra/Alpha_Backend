@@ -11,7 +11,9 @@ const listingSchema = new mongoose.Schema({
     description: { type: String, required: true },
     stock: { type: Number, required: true },
     reviews: { type: [String] },
-    sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller', required: true }
+    sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller', required: true },
+    variants: { type: [], required: true }, // Array for product variations 
+    highlightFeatures: { type: [], required: true }
 });
 
 const Listing = mongoose.model('Listing', listingSchema);
