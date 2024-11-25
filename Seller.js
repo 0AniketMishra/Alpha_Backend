@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 // Seller Schema
 const sellerSchema = new mongoose.Schema({
     sellerName: { type: String, required: true },
-    sellerNumber: { type: String, required: true },
-    shippingRange: { type: String, required: true },
+    shippingRange: { type: Number, required: true },
+    sellerNumber: {type: Number, required: true},
     agencyFulfilled: {type: Boolean, required: true},
     sellerFulfilled: {type: Boolean, required: true},
     registrationFee: { type: Boolean, required: true },

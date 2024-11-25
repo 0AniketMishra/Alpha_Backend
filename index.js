@@ -82,8 +82,10 @@ app.post('/login', async (req, res) => {
 // Registration Route
 app.post('/registerseller', async (req, res) => {
     console.log("I ran")
-    const { sellerName, sellerNumber, shippingRange, agencyFulfilled, sellerFulfilled, registrationFee, password } = req.body;
-    const newSeller = new Seller({ sellerName, sellerNumber, shippingRange, agencyFulfilled, sellerFulfilled, registrationFee, password });
+    const { sellerName, shippingRange, agencyFulfilled, sellerFulfilled, registrationFee, password } = req.body;
+    const collection = db.collection('sellers');
+     const sellerNumber = await collection.countDocuments()+1;
+    const newSeller = new Seller({ sellerName,sellerNumber, shippingRange, agencyFulfilled, sellerFulfilled, registrationFee, password });
     try {
         await newSeller.save(); res.status(201).send('Seller registered successfully');
     }
