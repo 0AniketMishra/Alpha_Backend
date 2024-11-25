@@ -82,8 +82,8 @@ app.post('/login', async (req, res) => {
 // Registration Route
 app.post('/registerseller', async (req, res) => {
     console.log("I ran")
-    const { sellerName, sellerNumber, shippingRange, shippingOptions, registrationFee, password } = req.body;
-    const newSeller = new Seller({ sellerName, sellerNumber, shippingRange, shippingOptions, registrationFee, password });
+    const { sellerName, sellerNumber, shippingRange, agencyFulfilled, sellerFulfilled, registrationFee, password } = req.body;
+    const newSeller = new Seller({ sellerName, sellerNumber, shippingRange, agencyFulfilled, sellerFulfilled, registrationFee, password });
     try {
         await newSeller.save(); res.status(201).send('Seller registered successfully');
     }

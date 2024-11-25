@@ -6,7 +6,8 @@ const sellerSchema = new mongoose.Schema({
     sellerName: { type: String, required: true },
     sellerNumber: { type: String, required: true },
     shippingRange: { type: String, required: true },
-    shippingOptions: { type: [String], required: true },
+    agencyFulfilled: {type: Boolean, required: true},
+    sellerFulfilled: {type: Boolean, required: true},
     registrationFee: { type: Boolean, required: true },
     password: { type: String, required: true },
 });
