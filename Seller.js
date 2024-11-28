@@ -8,6 +8,7 @@ const sellerSchema = new mongoose.Schema({
     sellerNumber: {type: Number, required: true},
     agencyFulfilled: {type: Boolean, required: true},
     sellerFulfilled: {type: Boolean, required: true},
+    email: {type: String},
     registrationFee: { type: Boolean, required: true },
     password: { type: String, required: true },
 });
