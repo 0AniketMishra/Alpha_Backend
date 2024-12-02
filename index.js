@@ -135,7 +135,8 @@ app.post('/sellerlogin', async (req, res) => {
 
 // Create Listing Route
 app.post('/createlisting',protectRoute, async (req, res) => {
-    const { image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId,variants,highlightFeatures } = req.body;
+    const { image, title, price, rating, originalPrice, badge, description, stock, reviews,variants,highlightFeatures } = req.body;
+    const sellerId = req.sellerId;
     const newListing = new Listing({ image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId,variants,highlightFeatures });
     try {
         await newListing.save(); res.status(201).send('Listing created successfully');

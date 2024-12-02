@@ -17,6 +17,7 @@ const protectRoute = async (req, res, next) => {
         }
 
         req.user = user;
+         req.sellerId = user._id;
         next();
     } catch (error) {
         console.log(error);
