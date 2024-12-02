@@ -9,7 +9,7 @@ const User = require('./User');
 const Seller = require('./Seller');
 const Listing = require('./Listing');
 const app = express()
-
+const protectRoute = require('./middleware/sprotectRoute')
 
 dotenv.config();
 
@@ -134,7 +134,7 @@ app.post('/sellerlogin', async (req, res) => {
 });
 
 // Create Listing Route
-app.post('/createlisting', async (req, res) => {
+app.post('/createlisting',protectRoute, async (req, res) => {
     const { image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId,variants,highlightFeatures } = req.body;
     const newListing = new Listing({ image, title, price, rating, originalPrice, badge, description, stock, reviews, sellerId,variants,highlightFeatures });
     try {
