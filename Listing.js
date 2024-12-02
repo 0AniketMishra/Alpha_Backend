@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 // Listing Schema
 const listingSchema = new mongoose.Schema({
-    image: { type: String, required: true },
+    image: { type: [], required: true },
     title: { type: String, required: true },
     price: { type: Number, required: true },
     rating: { type: Number, required: true },

@@ -49,13 +49,26 @@ app.get('/protected', async (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.id);
-        res.send(`Hello, ${user.username}`);
+        res.send(user._id);
     }
     catch (error) {
         console.log(error)
         res.status(401).send('Unauthorized');
     }
 });
+app.get('/sprotected', async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await Seller.findById(decoded.id);
+        res.send(user._id);
+    }
+    catch (error) {
+        console.log(error)
+        res.status(401).send('Unauthorized');
+    }
+});
+
 
 app.post('/login', async (req, res) => {
     try {
