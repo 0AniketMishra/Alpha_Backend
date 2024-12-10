@@ -10,6 +10,7 @@ const protectRoute = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
         const user = await Seller.findById(decoded.id);
 
         if (!user) {
