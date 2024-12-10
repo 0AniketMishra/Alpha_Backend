@@ -184,7 +184,7 @@ app.get('/listings', async (req, res) => {
         res.status(500).send('Error fetching listings');
     }
 })
-app.get('/sellerlistings', protectRoute, async (req, res) => {
+app.post('/sellerlistings', protectRoute, async (req, res) => {
     const sellerId = req.sellerId; // Assuming protectRoute adds sellerId to req
     try {
         const listings = await Listing.find({ sellerId });
