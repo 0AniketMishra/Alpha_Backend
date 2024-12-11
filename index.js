@@ -25,7 +25,7 @@ app.use(cookieParser());
 
 app.use(cors({
     origin: 'http://shadowi5jhpezl3f7euatqpr4virojhygtphv7gn74ymeugi7srxkkyd.onion',
-     methods: 'GET, POST, OPTIONS',
+     methods: 'GET, POST, OPTIONS,PUT',
       allowedHeaders: ['DNT', 'User-Agent', 'X-Requested-With', 'If-Modified-Since', 'Cache-Control', 'Content-Type'], credentials: true }));
 
 
