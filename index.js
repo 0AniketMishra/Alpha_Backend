@@ -158,9 +158,9 @@ app.delete('/deletelisting/:id', protectRoute, async (req, res) => {
     }
 })
 
-    app.put('/editlisting/:id', protectRoute, async (req, res) => {
+    app.put('/editlisting', protectRoute, async (req, res) => {
         const { sellerId } = req.params;
-        const { image, title, price, rating, originalPrice, badge, description, stock, reviews, variants, highlightFeatures } = req.body;
+        const { image, title, price, rating, originalPrice, badge,id, description, stock, reviews, variants, highlightFeatures } = req.body;
 
         try {
             const updatedListing = await Listing.findByIdAndUpdate(id, {
