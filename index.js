@@ -144,77 +144,90 @@ app.post('/createlisting', protectRoute, async (req, res) => {
         res.status(400).send(error);
     }
 })
-
-app.put('/editlisting/:id', protectRoute, async (req, res) => {
-    const { sellerId } = req.params;
-    const { image, title, price, rating, originalPrice, badge, description, stock, reviews, variants, highlightFeatures } = req.body;
-
+app.delete('/deletelisting/:id', protectRoute, async (req, res) => {
+    const { id } = req.params;
+    const sellerId = req.sellerId;
     try {
-        const updatedListing = await Listing.findByIdAndUpdate(id, {
-            image,
-            title,
-            price,
-            rating,
-            originalPrice,
-            badge,
-            description,
-            stock,
-            reviews,
-            variants,
-            highlightFeatures
-        }, { new: true });
-
-        if (!updatedListing) {
-            return res.status(404).send('Listing not found');
-        }
-
-        res.status(200).send('Listing updated successfully');
-    } catch (error) {
-        res.status(400).send(error);
-    }
-});
-
-
-
-app.get('/listings', async (req, res) => {
-    try {
-        const listings = await Listing.find();
-        res.status(200).json(listings);
-    } catch (error) {
-        res.status(500).send('Error fetching listings');
-    }
-})
-app.post('/sellerlistings', protectRoute, async (req, res) => {
-    const sellerId = req.sellerId; // Assuming protectRoute adds sellerId to req
-    try {
-        const listings = await Listing.find({ sellerId });
-        if (!listings || listings.length === 0) {
-            return res.status(404).send('No listings found for this seller');
-        }
-        res.status(200).json(listings);
-    }
-    catch (error) {
-        res.status(400).send(error);
-    }
-});
-app.get('/listing/:id', async (req, res) => {
-    try {
-        const listing = await Listing.findById(req.params.id);
+        const listing = await Listing.findOneAndDelete({ _id: id, sellerId });
         if (!listing) {
             return res.status(404).send('Listing not found');
         }
-        res.status(200).json(listing);
+        res.status(200).send('Listing deleted successfully');
     } catch (error) {
-        res.status(500).send('Error fetching listing');
+        res.status(400).send(error);
     }
-});
-
-const port = 3001
-
-app.get('/', (req, res) => {
-    res.send('Hello World!')
 })
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-})
+    app.put('/editlisting/:id', protectRoute, async (req, res) => {
+        const { sellerId } = req.params;
+        const { image, title, price, rating, originalPrice, badge, description, stock, reviews, variants, highlightFeatures } = req.body;
+
+        try {
+            const updatedListing = await Listing.findByIdAndUpdate(id, {
+                image,
+                title,
+                price,
+                rating,
+                originalPrice,
+                badge,
+                description,
+                stock,
+                reviews,
+                variants,
+                highlightFeatures
+            }, { new: true });
+
+            if (!updatedListing) {
+                return res.status(404).send('Listing not found');
+            }
+
+            res.status(200).send('Listing updated successfully');
+        } catch (error) {
+            res.status(400).send(error);
+        }
+    });
+
+
+
+    app.get('/listings', async (req, res) => {
+        try {
+            const listings = await Listing.find();
+            res.status(200).json(listings);
+        } catch (error) {
+            res.status(500).send('Error fetching listings');
+        }
+    })
+    app.post('/sellerlistings', protectRoute, async (req, res) => {
+        const sellerId = req.sellerId; // Assuming protectRoute adds sellerId to req
+        try {
+            const listings = await Listing.find({ sellerId });
+            if (!listings || listings.length === 0) {
+                return res.status(404).send('No listings found for this seller');
+            }
+            res.status(200).json(listings);
+        }
+        catch (error) {
+            res.status(400).send(error);
+        }
+    });
+    app.get('/listing/:id', async (req, res) => {
+        try {
+            const listing = await Listing.findById(req.params.id);
+            if (!listing) {
+                return res.status(404).send('Listing not found');
+            }
+            res.status(200).json(listing);
+        } catch (error) {
+            res.status(500).send('Error fetching listing');
+        }
+    });
+
+    const port = 3001
+
+    app.get('/', (req, res) => {
+        res.send('Hello World!')
+    })
+
+    app.listen(port, () => {
+        console.log(`Example app listening on port ${port}`)
+    })
