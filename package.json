@@ -9,6 +9,7 @@
   "author": "Me",
   "license": "ISC",
   "dependencies": {
+    "@nowpaymentsio/nowpayments-api-js": "^1.0.5",
     "argon2": "^0.41.1",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
