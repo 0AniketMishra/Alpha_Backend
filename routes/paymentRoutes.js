@@ -55,7 +55,8 @@ router.post('/test', async (req, res) => {
 // })
 
 router.post('/create-payment',uprotectRoute, async (req, res) => {
- const { userID } = req.userID;
+ const  userID  = req.user_id;
+ console.log(userID)
  const {data, shippingAddress, shippingMode, pay_currency} = req.body
  try{
     let totalPrice = 0;
@@ -70,7 +71,6 @@ router.post('/create-payment',uprotectRoute, async (req, res) => {
     totalPrice = (totalPrice*1.1) + 9.99; 
     const paymentRequest = {
         price_amount: totalPrice,
-        
         price_currency: 'USD',
         pay_currency: pay_currency,
         order_description: 'Payment for order'
@@ -93,12 +93,12 @@ router.post('/create-payment',uprotectRoute, async (req, res) => {
         });
 
         await newOrder.save();
-        res.json(response.data);
+        res.json("Payment created successfully");
 
  }
     }
     catch (error){
-        console.error(error); 
+        console.error(error.message); 
         res.status(500).json({ error: error.message });
     } 
 })
