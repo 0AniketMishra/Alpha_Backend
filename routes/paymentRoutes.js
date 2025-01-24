@@ -79,7 +79,6 @@ router.post('/create-payment',uprotectRoute, async (req, res) => {
     const response = await axios.post('https://api-sandbox.nowpayments.io/v1/payment', paymentRequest, {
         headers: { 'x-api-key': NOWPAYMENTS_API_KEY }
     }); 
-        res.json(response.data); 
         
         const paymentID = response.data.payment_id;
 
@@ -94,7 +93,8 @@ router.post('/create-payment',uprotectRoute, async (req, res) => {
         });
 
         await newOrder.save();
-   
+        res.json(response.data);
+
  }
     }
     catch (error){
