@@ -106,7 +106,7 @@ router.post('/payment-status', async (req, res) => {
     if (!payment_id) {
         return res.status(400).json({ error: 'Missing required field: payment_id' });
     } try {
-        var config = { method: 'get', maxBodyLength: Infinity, url: `https://api.nowpayments.io/v1/payment/${payment_id}`, headers: { 'x-api-key': NOWPAYMENTS_API_KEY } };
+        var config = { method: 'get', maxBodyLength: Infinity, url: `https://api-sandbox.nowpayments.io/v1/payment/${payment_id}`, headers: { 'x-api-key': NOWPAYMENTS_API_KEY } };
         axios(config).then(function (response) {
             console.log(JSON.stringify(response.data));
             res.json(response.data);
@@ -165,7 +165,7 @@ router.post('/verifyPayment', async (req, res) => {
     }
 
     let paymentCompleted = false;
-    const timeout = 600000; // 10 minutes in milliseconds
+    const timeout = 600000; // 10 minutes in 
     const checkInterval = 5000; // 5 seconds in milliseconds
     let elapsedTime = 0;
 
