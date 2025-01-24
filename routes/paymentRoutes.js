@@ -6,7 +6,8 @@ const NowPaymentsApi = require('@nowpaymentsio/nowpayments-api-js');
 const Order = require('../Order');
 const Listing = require('../Listing');
 router.use(bodyParser.json());
-const protectRoute2 = require('../middleware/paymentStatus')
+const protectRoute2 = require('../middleware/paymentStatus');
+const uprotectRoute = require('../middleware/uprotectRoute');
 
 
 const JWT_TOKEN = "795a73ae-a48c-4912-985a-35380986e5a6"
@@ -53,8 +54,9 @@ router.post('/test', async (req, res) => {
 //     }
 // })
 
-router.post('/create-payment', async (req, res) => {
- const {data,userID, shippingAddress, shippingMode, pay_currency} = req.body
+router.post('/create-payment',uprotectRoute, async (req, res) => {
+ const { userID } = req.userID;
+ const {data, shippingAddress, shippingMode, pay_currency} = req.body
  try{
     let totalPrice = 0;
     for(const item of data){
