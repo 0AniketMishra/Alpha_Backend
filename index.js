@@ -24,7 +24,6 @@ app.use(listingsRoutes)
 app.use(authRoutes)
 app.use(paymentRoutes)
 
-
 // app.use(cors({
 //     origin: 'http://shadowi5jhpezl3f7euatqpr4virojhygtphv7gn74ymeugi7srxkkyd.onion',
 //      methods: 'GET, POST, OPTIONS,PUT',

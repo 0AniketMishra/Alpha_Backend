@@ -3,11 +3,14 @@ const axios = require('axios');
 const express = require('express');
 const router = express.Router();
 const NowPaymentsApi = require('@nowpaymentsio/nowpayments-api-js');
+const Order = require('../Order');
+const Listing = require('../Listing');
 router.use(bodyParser.json());
+const protectRoute2 = require('../middleware/paymentStatus')
 
 
 const JWT_TOKEN = "795a73ae-a48c-4912-985a-35380986e5a6"
-const NOWPAYMENTS_API_KEY = "4HE9HCY-1B5MZ8V-KA4TCQ1-BCN4F8R"
+const NOWPAYMENTS_API_KEY = "Q0V4Y9B-BVA4XMQ-GCP1SJX-8Y5SY4N"
 const api = new NowPaymentsApi({ apiKey: '4HE9HCY-1B5MZ8V-KA4TCQ1-BCN4F8R' })
 
 // router.post('/create-payment', async (req, res) => {
@@ -33,22 +36,70 @@ const api = new NowPaymentsApi({ apiKey: '4HE9HCY-1B5MZ8V-KA4TCQ1-BCN4F8R' })
 //         res.status(500).json({ error: error.message });
 //     }
 // });
+
 router.post('/test', async (req, res) => {
     const { currencies } = await api.getCurrencies()
     console.log(currencies)
 
 })
 
-router.post('/create-payment', async (req, res) => {
-    try {
-        const { price_amount, price_currency, pay_currency, order_id, order_description } = req.body;
-        const payment = await api.createPayment({ price_amount, price_currency, pay_currency, order_id, order_description },); // Indicating a sandbox payment
-        res.json(payment);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-})
+// router.post('/create-payment', async (req, res) => {
+//     try {
+//         const { price_amount, price_currency, pay_currency, order_id, order_description } = req.body;
+//         const payment = await api.createPayment({ price_amount, price_currency, pay_currency, order_id, order_description },); // Indicating a sandbox payment
+//         res.json(payment);
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// })
 
+router.post('/create-payment', async (req, res) => {
+ const {data,userID, shippingAddress, shippingMode, pay_currency} = req.body
+ try{
+    let totalPrice = 0;
+    for(const item of data){
+      const order = await Listing.findById(item._id)
+      console.log(order)
+      if(order)
+        totalPrice += order.price * item.quantity;
+    else 
+    return res.status(400).json({ error: 'Order not found' });
+
+    totalPrice = (totalPrice*1.1) + 9.99; 
+    const paymentRequest = {
+        price_amount: totalPrice,
+        
+        price_currency: 'USD',
+        pay_currency: pay_currency,
+        order_description: 'Payment for order'
+    }
+
+    const response = await axios.post('https://api-sandbox.nowpayments.io/v1/payment', paymentRequest, {
+        headers: { 'x-api-key': NOWPAYMENTS_API_KEY }
+    }); 
+        res.json(response.data); 
+        
+        const paymentID = response.data.payment_id;
+
+        const newOrder = new Order({
+            data: data,
+            userID: userID,
+            shippingAddress: shippingAddress,
+            shippingMode: shippingMode,
+            pay_currency: pay_currency,
+            paymentID: paymentID,
+            price_amount: totalPrice
+        });
+
+        await newOrder.save();
+   
+ }
+    }
+    catch (error){
+        console.error(error); 
+        res.status(500).json({ error: error.message });
+    } 
+})
 
 router.post('/payment-status', async (req, res) => {
     const { payment_id } = req.body;
@@ -76,9 +127,6 @@ router.post('/payment-status', async (req, res) => {
         }
     }
 });
-
-
-
 
 
 router.post('/send-payment', async (req, res) => {
@@ -109,4 +157,68 @@ router.post('/send-payment', async (req, res) => {
     }
 })
 
+router.post('/verifyPayment', async (req, res) => {
+    const { payment_id, order_id } = req.body;
+
+    if (!payment_id || !order_id) {
+        return res.status(400).json({ error: 'Missing required fields: payment_id or order_id' });
+    }
+
+    let paymentCompleted = false;
+    const timeout = 600000; // 10 minutes in milliseconds
+    const checkInterval = 5000; // 5 seconds in milliseconds
+    let elapsedTime = 0;
+
+    // Function to check payment status
+    const checkPayment = async () => {
+        const config = {
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: `https://api-sandbox.nowpayments.io/v1/payment/${payment_id}`,
+            headers: { 'x-api-key': NOWPAYMENTS_API_KEY }
+        };
+
+        while (!paymentCompleted && elapsedTime < timeout) {
+            try { 
+                const response = await axios(config);
+                const paymentStatus = response.data.payment_status;
+                console.log(paymentStatus);
+
+                if (paymentStatus === 'finished') {
+                    paymentCompleted = true;
+                    break;
+                }
+            } catch (error) {
+                console.log(error);
+            }
+
+            await new Promise(resolve => setTimeout(resolve, checkInterval)); // Wait for the check interval
+            elapsedTime += checkInterval;
+        }
+
+        if (paymentCompleted) {
+            try {
+                const updatedOrder = await Order.findOneAndUpdate(
+                    { _id: order_id },
+                    { escrowStatus: 'completed' },
+                    { new: true }
+                );
+
+                if (!updatedOrder) {
+                    return res.status(404).json({ message: 'Order not found' });
+                }
+
+                res.status(200).json(updatedOrder);
+            } catch (error) {
+                res.status(500).json({ message: 'Error updating order' });
+            }
+        } else {
+            res.status(400).json({ message: 'Payment not completed within the expected time' });
+        }
+    };
+
+    checkPayment();
+});
+
 module.exports = router;
+
