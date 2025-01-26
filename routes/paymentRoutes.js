@@ -57,7 +57,7 @@ router.post('/test', async (req, res) => {
 router.post('/create-payment',uprotectRoute, async (req, res) => {
  const  userID  = req.user_id;
  
- const {data, shippingAddress, shippingMode, pay_currency} = req.body
+ const {data, shippingAddress, shippingMode,sellerId, pay_currency} = req.body
  try{
     let totalPrice = 0;
     for(const item of data){
@@ -85,6 +85,7 @@ router.post('/create-payment',uprotectRoute, async (req, res) => {
         const newOrder = new Order({
             data: data,
             userID: userID,
+            sellerID: sellerId,
             shippingAddress: shippingAddress,
             shippingMode: shippingMode,
             pay_currency: pay_currency,

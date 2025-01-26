@@ -5,9 +5,11 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const User = require("../User");
 const Listing = require("../Listing");
+const Order = require("../Order");
 const router = express.Router();
 const app = express()
-const protectRoute = require('../middleware/sprotectRoute')
+const protectRoute = require('../middleware/sprotectRoute');
+const { default: mongoose } = require("mongoose");
 
 //listings route: Fetches All the listings available.
 router.get('/listings', async (req, res) => {
@@ -97,6 +99,26 @@ router.delete('/deletelisting/:id', protectRoute, async (req, res) => {
     }
 })
 
+router.post('/orders',protectRoute, async (req, res) => {
+
+    const sellerId = req.sellerId.toString();
+    console.log(sellerId)
+    if (!sellerId) {
+        return res.status(400).send('sellerID parameter is required');
+    }
+
+    try {
+        const query = { sellerID: { $in: [sellerId] } };
+        const orders = await Order.find(query);
+console.log(orders)
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching orders');
+    }
+
+
+});
 module.exports = router
 
 
