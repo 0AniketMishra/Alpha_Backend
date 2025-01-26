@@ -56,13 +56,13 @@ router.post('/test', async (req, res) => {
 
 router.post('/create-payment',uprotectRoute, async (req, res) => {
  const  userID  = req.user_id;
- console.log(userID)
+ 
  const {data, shippingAddress, shippingMode, pay_currency} = req.body
  try{
     let totalPrice = 0;
     for(const item of data){
       const order = await Listing.findById(item._id)
-      console.log(order)
+      
       if(order)
         totalPrice += order.price * item.quantity;
     else 
@@ -93,12 +93,12 @@ router.post('/create-payment',uprotectRoute, async (req, res) => {
         });
 
         await newOrder.save();
-        res.json("Payment created successfully");
+        res.json(response.data);
 
  }
     }
     catch (error){
-        console.error(error.message); 
+        console.error(error); 
         res.status(500).json({ error: error.message });
     } 
 })
@@ -160,15 +160,15 @@ router.post('/send-payment', async (req, res) => {
 })
 
 router.post('/verifyPayment', async (req, res) => {
-    const { payment_id, order_id } = req.body;
+    const { payment_id } = req.body;
 
-    if (!payment_id || !order_id) {
-        return res.status(400).json({ error: 'Missing required fields: payment_id or order_id' });
-    }
+    // if (!payment_id || !order_id) {
+        // return res.status(400).json({ error: 'Missing required fields: payment_id or order_id' });
+    // }
 
     let paymentCompleted = false;
     const timeout = 600000; // 10 minutes in 
-    const checkInterval = 5000; // 5 seconds in milliseconds
+    const checkInterval = 1000; // 5 seconds in milliseconds
     let elapsedTime = 0;
 
     // Function to check payment status
@@ -201,7 +201,7 @@ router.post('/verifyPayment', async (req, res) => {
         if (paymentCompleted) {
             try {
                 const updatedOrder = await Order.findOneAndUpdate(
-                    { _id: order_id },
+                    { paymentID: payment_id },
                     { escrowStatus: 'completed' },
                     { new: true }
                 );

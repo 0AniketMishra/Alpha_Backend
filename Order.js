@@ -8,6 +8,7 @@ const orderSchema = new Schema({
   paymentID: {type: Number, required: true, unique: true},
   shippingStatus: { type: String, default: 'not_shipped' },
   escrowStatus: { type: String, default: 'payment_not_found' },
+  status: {type: String, default: 'pending', },
   price_amount: {type: Number, required: true},
   pay_currency: {type: String, required: true},
   shippingAddress: { type: String, required: true },
