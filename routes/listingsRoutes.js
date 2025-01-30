@@ -71,6 +71,19 @@ router.put('/editlisting', protectRoute, async (req, res) => {
 });
 
 
+router.get('/featuredPosts', async (req, res) => {
+    try {
+        const count = await Listing.countDocuments();
+        const listings = await Listing.find().skip(count - 4).limit(4);
+        res.json(listings);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching listings', error });
+    }
+});
+
+
+
+
 // Create Listing Route
 router.post('/createlisting', protectRoute, async (req, res) => {
     const { image, title, price, rating, originalPrice, badge, description, stock, reviews, variants, highlightFeatures } = req.body;
