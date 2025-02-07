@@ -56,12 +56,12 @@ router.post('/test', async (req, res) => {
 
 router.post('/create-payment', uprotectRoute, async (req, res) => {
     const userID = req.user_id;
-    const { data, shippingAddress, shippingMode, sellerId, pay_currency } = req.body;
+    const { data, shippingAddress, shippingMode, pay_currency } = req.body;
 
     try {
         let totalPrice = 0;
         for (const item of data) {
-            const order = await Listing.findById(item.item_id); // Change item._id to item.item_id
+            const order = await Listing.findById(item._id); // Change item._id to item.item_id
 
             if (order) {
                 totalPrice += order.price * item.quantity;

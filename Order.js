@@ -14,7 +14,6 @@ const orderSchema = new Schema({
   status: {type: String, default: 'pending', },
   sellerAmount: {type: Number, required: true},
   pay_currency: {type: String, required: true},
-  sellerID: {type: Array, required: true},
   shippingAddress: { type: String, required: true },
   shippingMode: { type: String, required: true },
   delivered: { type: Date, default: null }
