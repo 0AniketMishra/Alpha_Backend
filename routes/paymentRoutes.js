@@ -207,7 +207,7 @@ router.post('/verifyPayment', async (req, res) => {
 
         if (paymentCompleted) {
             try {
-                const updatedOrder = await Order.findOneAndUpdate(
+                const updatedOrder = await Order.updateMany(
                     { paymentID: payment_id },
                     { escrowStatus: 'completed' },
                     { new: true }
