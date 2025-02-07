@@ -58,6 +58,54 @@ router.post('/create-payment', uprotectRoute, async (req, res) => {
     const userID = req.user_id;
     const { data, shippingAddress, shippingMode, pay_currency } = req.body;
 
+
+    const checkPayment = async (payment_id) => {
+        let paymentCompleted = false;
+        const timeout = 600000; // 10 minutes in 
+        const checkInterval = 1000; // 5 seconds in milliseconds
+        let elapsedTime = 0;
+
+        const config = {
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: `https://api-sandbox.nowpayments.io/v1/payment/${payment_id}`,
+            headers: { 'x-api-key': NOWPAYMENTS_API_KEY }
+        };
+
+        while (!paymentCompleted && elapsedTime < timeout) {
+            try {
+                const response = await axios(config);
+                const paymentStatus = response.data.payment_status;
+                if (paymentStatus === 'finished') {
+                    paymentCompleted = true;
+                    break;
+                }
+            } catch (error) {
+                console.log(error);
+            }
+
+            await new Promise(resolve => setTimeout(resolve, checkInterval)); // Wait for the check interval
+            elapsedTime += checkInterval;
+        }
+
+        if (paymentCompleted) {
+            try {
+                const updatedOrder = await Order.updateMany(
+                    { paymentID: payment_id },
+                    { escrowStatus: 'completed' },
+                    { new: true }
+                );
+
+              
+            } catch (error) {
+              console.log({ message: 'Error updating order' });
+            }
+        } 
+    };
+
+
+
+
     try {
         let totalPrice = 0;
         for (const item of data) {
@@ -102,6 +150,8 @@ router.post('/create-payment', uprotectRoute, async (req, res) => {
         }
 
         res.json(response.data);
+
+        checkPayment(paymentID)
 
     } catch (error) {
         console.error(error);
@@ -166,68 +216,6 @@ router.post('/send-payment', async (req, res) => {
     }
 })
 
-router.post('/verifyPayment', async (req, res) => {
-    const { payment_id } = req.body;
-
-    // if (!payment_id || !order_id) {
-        // return res.status(400).json({ error: 'Missing required fields: payment_id or order_id' });
-    // }
-
-    let paymentCompleted = false;
-    const timeout = 600000; // 10 minutes in 
-    const checkInterval = 1000; // 5 seconds in milliseconds
-    let elapsedTime = 0;
-
-    // Function to check payment status
-    const checkPayment = async () => {
-        const config = {
-            method: 'get',
-            maxBodyLength: Infinity,
-            url: `https://api-sandbox.nowpayments.io/v1/payment/${payment_id}`,
-            headers: { 'x-api-key': NOWPAYMENTS_API_KEY }
-        };
-
-        while (!paymentCompleted && elapsedTime < timeout) {
-            try { 
-                const response = await axios(config);
-                const paymentStatus = response.data.payment_status;
-                console.log(paymentStatus);
-
-                if (paymentStatus === 'finished') {
-                    paymentCompleted = true;
-                    break;
-                }
-            } catch (error) {
-                console.log(error);
-            }
-
-            await new Promise(resolve => setTimeout(resolve, checkInterval)); // Wait for the check interval
-            elapsedTime += checkInterval;
-        }
-
-        if (paymentCompleted) {
-            try {
-                const updatedOrder = await Order.updateMany(
-                    { paymentID: payment_id },
-                    { escrowStatus: 'completed' },
-                    { new: true }
-                );
-
-                if (!updatedOrder) {
-                    return res.status(404).json({ message: 'Order not found' });
-                }
-
-                res.status(200).json(updatedOrder);
-            } catch (error) {
-                res.status(500).json({ message: 'Error updating order' });
-            }
-        } else {
-            res.status(400).json({ message: 'Payment not completed within the expected time' });
-        }
-    };
-
-    checkPayment();
-});
 
 module.exports = router;
 
