@@ -121,7 +121,7 @@ router.post('/orders',protectRoute, async (req, res) => {
     }
 
     try {
-        const query = { sellerID: { $in: [sellerId] } };
+        const query = { sellerID: sellerId };
         const orders = await Order.find(query);
 console.log(orders)
         res.status(200).json(orders);
