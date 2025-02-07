@@ -129,8 +129,41 @@ console.log(orders)
         console.error(error);
         res.status(500).send('Error fetching orders');
     }
+});
 
 
+router.put('/acceptOrder', protectRoute, async (req, res) => {
+    try {
+      const { orderID } = req.body;
+      const update = { $set: { status: 'Accepted' } };
+      const sid = req.sellerId.toString()
+      const result = await Order.updateOne({status: "pending", sellerID: req.sellerId.toString()}, update);
+
+      if (result.matchedCount === 0) {
+        return res.status(404).send('Order not found or unauthorized access');
+      }
+
+      res.send('Order status updated to Accepted');
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+
+router.put('/rejectOrder', protectRoute, async (req, res) => {
+    try {
+        const { orderID } = req.body;
+        const update = { $set: { status: 'Rejected' } };
+        const sid = req.sellerId.toString()
+        const result = await Order.updateOne({ status: "pending", sellerID: req.sellerId.toString() }, update);
+
+        if (result.matchedCount === 0) {
+            return res.status(404).send('Order not found or unauthorized access');
+        }
+
+        res.send('Order status updated to Rejected');
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 module.exports = router
 
