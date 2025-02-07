@@ -121,7 +121,7 @@ router.post('/orders',protectRoute, async (req, res) => {
     }
 
     try {
-        const query = { sellerID: sellerId };
+        const query = { sellerID: sellerId, status: "pending" };
         const orders = await Order.find(query);
 console.log(orders)
         res.status(200).json(orders);
