@@ -112,7 +112,7 @@ router.delete('/deletelisting/:id', protectRoute, async (req, res) => {
     }
 })
 
-router.post('/orders',protectRoute, async (req, res) => {
+router.post('/pendingOrders',protectRoute, async (req, res) => {
 
     const sellerId = req.sellerId.toString();
     console.log(sellerId)
@@ -124,6 +124,24 @@ router.post('/orders',protectRoute, async (req, res) => {
         const query = { sellerID: sellerId, status: "pending" };
         const orders = await Order.find(query);
 console.log(orders)
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching orders');
+    }
+});
+
+router.post('/ongoingOrders', protectRoute, async (req, res) => {
+
+    const sellerId = req.sellerId.toString();
+    if (!sellerId) {
+        return res.status(400).send('sellerID parameter is required');
+    }
+
+    try {
+        const query = { sellerID: sellerId, status: "Accepted", status: "Sent To Ship", status: "Packaging"  };
+        const orders = await Order.find(query);
+        console.log(orders)
         res.status(200).json(orders);
     } catch (error) {
         console.error(error);
