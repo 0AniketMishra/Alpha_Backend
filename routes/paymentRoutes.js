@@ -54,55 +54,61 @@ router.post('/test', async (req, res) => {
 //     }
 // })
 
-router.post('/create-payment',uprotectRoute, async (req, res) => {
- const  userID  = req.user_id;
- 
- const {data, shippingAddress, shippingMode,sellerId, pay_currency} = req.body
- try{
-    let totalPrice = 0;
-    for(const item of data){
-      const order = await Listing.findById(item._id)
-      
-      if(order)
-        totalPrice += order.price * item.quantity;
-    else 
-    return res.status(400).json({ error: 'Order not found' });
+router.post('/create-payment', uprotectRoute, async (req, res) => {
+    const userID = req.user_id;
+    const { data, shippingAddress, shippingMode, sellerId, pay_currency } = req.body;
 
-    totalPrice = (totalPrice*1.1) + 9.99; 
-    const paymentRequest = {
-        price_amount: totalPrice,
-        price_currency: 'USD',
-        pay_currency: pay_currency,
-        order_description: 'Payment for order'
-    }
+    try {
+        let totalPrice = 0;
+        for (const item of data) {
+            const order = await Listing.findById(item.item_id); // Change item._id to item.item_id
 
-    const response = await axios.post('https://api-sandbox.nowpayments.io/v1/payment', paymentRequest, {
-        headers: { 'x-api-key': NOWPAYMENTS_API_KEY }
-    }); 
-        
-        const paymentID = response.data.payment_id;
+            if (order) {
+                totalPrice += order.price * item.quantity;
+            } else {
+                return res.status(400).json({ error: 'Order not found' });
+            }
+        }
 
-        const newOrder = new Order({
-            data: data,
-            userID: userID,
-            sellerID: sellerId,
-            shippingAddress: shippingAddress,
-            shippingMode: shippingMode,
+        totalPrice = (totalPrice * 1.1) + 9.99;
+        const paymentRequest = {
+            price_amount: totalPrice,
+            price_currency: 'USD',
             pay_currency: pay_currency,
-            paymentID: paymentID,
-            price_amount: totalPrice
+            order_description: 'Payment for order'
+        };
+
+        const response = await axios.post('https://api-sandbox.nowpayments.io/v1/payment', paymentRequest, {
+            headers: { 'x-api-key': NOWPAYMENTS_API_KEY }
         });
 
-        await newOrder.save();
+        const paymentID = response.data.payment_id;
+
+        for (const item of data) {
+            const newOrder = new Order({
+                sellerID: item.sellerId,
+                itemID: item._id,
+                quantity: item.quantity,
+                variants: item.variants,
+                userID: userID,
+                shippingAddress: shippingAddress,
+                shippingMode: shippingMode,
+                pay_currency: pay_currency,
+                paymentID: paymentID,
+                sellerAmount: totalPrice-((totalPrice/100)*2.5),
+            });
+
+            await newOrder.save();
+        }
+
         res.json(response.data);
 
- }
-    }
-    catch (error){
-        console.error(error); 
+    } catch (error) {
+        console.error(error);
         res.status(500).json({ error: error.message });
-    } 
-})
+    }
+});
+
 
 router.post('/payment-status', async (req, res) => {
     const { payment_id } = req.body;

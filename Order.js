@@ -3,13 +3,16 @@ const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
 
-  data: {type:Array, required: true},
+  sellerID: {type: String, required: true},
+  itemID: {type: String,  required: true},
+  quantity: {type: Number, required: true},
+  variants: {type: Array, required: true},
   userID: { type: String, required: true },
   paymentID: {type: Number, required: true, unique: true},
   shippingStatus: { type: String, default: 'not_shipped' },
   escrowStatus: { type: String, default: 'payment_not_found' },
   status: {type: String, default: 'pending', },
-  price_amount: {type: Number, required: true},
+  sellerAmount: {type: Number, required: true},
   pay_currency: {type: String, required: true},
   sellerID: {type: Array, required: true},
   shippingAddress: { type: String, required: true },
