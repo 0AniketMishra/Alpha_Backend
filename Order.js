@@ -8,7 +8,7 @@ const orderSchema = new Schema({
   quantity: {type: Number, required: true},
   variants: {type: Array, required: true},
   userID: { type: String, required: true },
-  paymentID: {type: Number, required: true, unique: true},
+  paymentID: {type: Number, required: true,},
   shippingStatus: { type: String, default: 'not_shipped' },
   escrowStatus: { type: String, default: 'payment_not_found' },
   status: {type: String, default: 'pending', },
