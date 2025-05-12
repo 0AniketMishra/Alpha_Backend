@@ -105,7 +105,7 @@ router.post('/registerseller', async (req, res) => {
         await newSeller.save(); res.status(201).send('Seller registered successfully');
     }
     catch (error) {
-        console.log(error)
+        res.status(500).send(error)
     }
 })
 
